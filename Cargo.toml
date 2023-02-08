@@ -1,0 +1,27 @@
+[package]
+name = "poem-sea-orm-middleware"
+version = "0.1.0"
+edition = "2021"
+authors = ["zihan <ZihanType@proton.me>"]
+license = "MIT/Apache-2.0"
+homepage = "https://github.com/ZihanType/poem-sea-orm-middleware"
+repository = "https://github.com/ZihanType/poem-sea-orm-middleware"
+description = "Sea ORM middleware for Poem web framework"
+keywords = ["sea-orm", "middleware", "poem", "web"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+poem = { version = "1.3.54", default-features = false }
+sea-orm = { version = "0.11.0", default-features = false }
+tokio = { version = "1.25.0", default-features = false, features = ["rt"] }
+
+[dev-dependencies]
+poem = { version = "1.3.54", default-features = false, features = ["server"] }
+sea-orm = { version = "0.11.0", default-features = false, features = [
+    "macros",
+    "runtime-tokio-rustls",
+    "sqlx-mysql",
+    "with-uuid",
+] }
+tokio = { version = "1.25.0", default-features = false, features = ["full"] }
