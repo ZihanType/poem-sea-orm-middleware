@@ -4,40 +4,42 @@ use poem::{
     error::InternalServerError, http::StatusCode, Endpoint, Error, IntoResponse, Middleware,
     Request, Response, Result,
 };
-use sea_orm::{DatabaseConnection, DatabaseTransaction, TransactionTrait};
+use sea_orm::{DatabaseConnection, TransactionTrait};
+
+use crate::ArcTxn;
 
 tokio::task_local! {
-    pub static TXN: Arc<DatabaseTransaction>;
+    pub static TXN: ArcTxn;
 }
 
-pub struct TxnMiddleware {
+pub struct ImplicitDbMiddleware {
     conn: DatabaseConnection,
 }
 
-impl TxnMiddleware {
+impl ImplicitDbMiddleware {
     pub fn new(conn: DatabaseConnection) -> Self {
         Self { conn }
     }
 }
 
-impl<E: Endpoint> Middleware<E> for TxnMiddleware {
-    type Output = TxnEndpoint<E>;
+impl<E: Endpoint> Middleware<E> for ImplicitDbMiddleware {
+    type Output = ImplicitDbEndpoint<E>;
 
     fn transform(&self, ep: E) -> Self::Output {
-        TxnEndpoint {
+        ImplicitDbEndpoint {
             ep,
             conn: self.conn.clone(),
         }
     }
 }
 
-pub struct TxnEndpoint<E> {
+pub struct ImplicitDbEndpoint<E> {
     ep: E,
     conn: DatabaseConnection,
 }
 
 #[poem::async_trait]
-impl<E: Endpoint> Endpoint for TxnEndpoint<E> {
+impl<E: Endpoint> Endpoint for ImplicitDbEndpoint<E> {
     type Output = Response;
 
     async fn call(&self, req: Request) -> Result<Self::Output> {

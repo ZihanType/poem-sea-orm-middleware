@@ -1,5 +1,10 @@
-use poem::{get, handler, listener::TcpListener, web::Path, EndpointExt, Route, Server};
-use poem_sea_orm_middleware::{LocalKeyExt, TxnMiddleware, TXN};
+use poem::{
+    get, handler,
+    listener::TcpListener,
+    web::{Data, Path},
+    EndpointExt, Route, Server,
+};
+use poem_sea_orm_middleware::{ArcTxn, ExplicitDbMiddleware};
 use sea_orm::{entity::prelude::*, Database};
 
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
@@ -22,9 +27,12 @@ impl RelationTrait for Relation {
 impl ActiveModelBehavior for ActiveModel {}
 
 #[handler]
-async fn hello(Path(name): Path<String>) -> String {
-    // get transaction from task local value
-    let txn = &*TXN.cloned();
+async fn hello(
+    Path(name): Path<String>,
+    // get transaction from parameter rather than task local
+    Data(txn): Data<&ArcTxn>,
+) -> String {
+    let txn = &**txn;
 
     let user = match Entity::find()
         .filter(Column::Name.eq(name.clone()))
@@ -46,13 +54,13 @@ async fn main() -> Result<(), std::io::Error> {
         .await
         .unwrap();
 
-    // create transaction middleware
-    let txn_middleware = TxnMiddleware::new(db);
+    // create explicit transaction middleware
+    let explicit_db_middleware = ExplicitDbMiddleware::new(db);
 
     let app = Route::new()
         .at("/hello/:name", get(hello))
         // add middleware
-        .with(txn_middleware);
+        .with(explicit_db_middleware);
 
     Server::new(TcpListener::bind("127.0.0.1:3000"))
         .run(app)
