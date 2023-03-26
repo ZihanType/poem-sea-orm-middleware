@@ -8,6 +8,7 @@ homepage = "https://github.com/ZihanType/poem-sea-orm-middleware"
 repository = "https://github.com/ZihanType/poem-sea-orm-middleware"
 description = "Sea ORM middleware for Poem web framework"
 keywords = ["sea-orm", "middleware", "poem", "web"]
+include = ["src/**/*", "Cargo.toml"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

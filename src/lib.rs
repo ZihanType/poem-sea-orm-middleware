@@ -1,3 +1,5 @@
+#![doc = include_str!("../README.md")]
+
 #[cfg(feature = "explicit")]
 mod explicit_middleware;
 #[cfg(feature = "implicit")]
