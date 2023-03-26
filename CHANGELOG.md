@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.2] 2023-03-26
+
+- update to `sea-orm` 0.12.0.
+
 ## [0.2.1] 2023-02-14
 
 - make `Tokio` optional.
