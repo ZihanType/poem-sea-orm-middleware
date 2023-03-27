@@ -14,14 +14,14 @@ include = ["src/**/*", "Cargo.toml"]
 
 [dependencies]
 poem = { version = "1", default-features = false }
-sea-orm = { version = "0.12.0", default-features = false }
+sea-orm = { version = "0.11.2", default-features = false }
 tokio = { version = "1", default-features = false, optional = true, features = [
     "rt",
 ] }
 
 [dev-dependencies]
 poem = { version = "1", default-features = false, features = ["server"] }
-sea-orm = { version = "0.12.0", default-features = false, features = [
+sea-orm = { version = "0.11.2", default-features = false, features = [
     "macros",
     "runtime-tokio-rustls",
     "sqlx-mysql",
