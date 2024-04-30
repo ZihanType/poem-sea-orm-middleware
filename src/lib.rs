@@ -1,17 +1,23 @@
 #![doc = include_str!("../README.md")]
 
-#[cfg(feature = "explicit")]
-mod explicit_middleware;
-#[cfg(feature = "implicit")]
-mod ext;
-#[cfg(feature = "implicit")]
-mod implicit_middleware;
+pub(crate) const DEFAULT_DATA_SOURCE_NAME: &str = "default";
 
-#[cfg(any(feature = "explicit", feature = "implicit",))]
-pub type ArcTxn = std::sync::Arc<sea_orm::DatabaseTransaction>;
-#[cfg(feature = "explicit")]
-pub use explicit_middleware::*;
-#[cfg(feature = "implicit")]
-pub use ext::*;
-#[cfg(feature = "implicit")]
-pub use implicit_middleware::*;
+tokio::task_local! {
+    pub(crate) static DATA_SOURCES: std::sync::Arc<DataSources>;
+}
+
+mod connection;
+mod data_sources;
+mod error;
+mod function;
+mod middleware;
+mod transaction;
+
+pub use self::{
+    connection::Connection,
+    data_sources::DataSources,
+    error::Error,
+    function::{current_txn, default_txn, new_txn},
+    middleware::{SeaOrmEndpoint, SeaOrmMiddleware},
+    transaction::Transaction,
+};

@@ -1,6 +1,45 @@
 use poem::{get, handler, listener::TcpListener, web::Path, EndpointExt, Route, Server};
-use poem_sea_orm_middleware::{ImplicitDbMiddleware, LocalKeyExt, TXN};
+use poem_sea_orm_middleware::{default_txn, DataSources, SeaOrmMiddleware};
 use sea_orm::{entity::prelude::*, Database};
+
+#[handler]
+async fn hello(Path(name): Path<String>) -> String {
+    // get transaction from task local
+    let txn = default_txn().await.unwrap();
+
+    let user = match Entity::find()
+        .filter(Column::Name.eq(name.clone()))
+        .one(&txn)
+        .await
+        .unwrap()
+    {
+        Some(user) => user,
+        None => return format!("not found: {name}"),
+    };
+
+    format!("hello: {}", user.name)
+}
+
+#[tokio::main]
+async fn main() -> Result<(), std::io::Error> {
+    // create database connection
+    let db = Database::connect("mysql://root:123456@localhost:3306/db")
+        .await
+        .unwrap();
+
+    // create middleware
+    let data_sources = DataSources::with_default(db).await;
+    let middleware = SeaOrmMiddleware::new(data_sources);
+
+    let app = Route::new()
+        .at("/hello/:name", get(hello))
+        // add middleware
+        .with(middleware);
+
+    Server::new(TcpListener::bind("127.0.0.1:3000"))
+        .run(app)
+        .await
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "user")]
@@ -20,41 +59,3 @@ impl RelationTrait for Relation {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
-
-#[handler]
-async fn hello(Path(name): Path<String>) -> String {
-    // get transaction from task local rather than passing it as a parameter
-    let txn = &*TXN.cloned();
-
-    let user = match Entity::find()
-        .filter(Column::Name.eq(name.clone()))
-        .one(txn)
-        .await
-        .unwrap()
-    {
-        Some(user) => user,
-        None => return format!("not found: {name}"),
-    };
-
-    format!("hello: {}", user.name)
-}
-
-#[tokio::main]
-async fn main() -> Result<(), std::io::Error> {
-    // create database connection
-    let db = Database::connect("mysql://root:123456@localhost:3306/db")
-        .await
-        .unwrap();
-
-    // create implicit transaction middleware
-    let implicit_db_middleware = ImplicitDbMiddleware::new(db);
-
-    let app = Route::new()
-        .at("/hello/:name", get(hello))
-        // add middleware
-        .with(implicit_db_middleware);
-
-    Server::new(TcpListener::bind("127.0.0.1:3000"))
-        .run(app)
-        .await
-}

@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.0] 2024-04-30
+
+- remove `Implicitxxx` and `Explicitxxx` types.
+- add `SeaOrmMiddleware`, `DataSources`, `Connection`.
+
 ## [0.2.3] 2023-03-27
 
 - downgrade `sea-orm` to 0.11.2.
