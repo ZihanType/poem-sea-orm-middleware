@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.0] 2024-05-01
+
+- remove `Connection::unmanaged_txn` method.
+- add `commit`, `rollback`, `data_sources` functions.
+
 ## [0.4.0] 2024-04-30
 
 - remove `Implicitxxx` and `Explicitxxx` types.

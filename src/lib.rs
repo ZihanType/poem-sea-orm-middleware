@@ -17,7 +17,7 @@ pub use self::{
     connection::Connection,
     data_sources::DataSources,
     error::Error,
-    function::{current_txn, default_txn, new_txn},
+    function::{commit, current_txn, data_sources, default_txn, new_txn, rollback},
     middleware::{SeaOrmEndpoint, SeaOrmMiddleware},
     transaction::Transaction,
 };

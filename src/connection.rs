@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use sea_orm::{DatabaseConnection, DatabaseTransaction, DbErr, TransactionTrait};
+use sea_orm::{DatabaseConnection, TransactionTrait};
 
 use crate::{error::Error, transaction::Transaction};
 
@@ -32,10 +32,6 @@ impl Connection {
         let txn = Transaction(Arc::new(txn));
         self.transactions.push(txn.clone());
         Ok(txn)
-    }
-
-    pub async fn unmanaged_txn(&self) -> Result<DatabaseTransaction, DbErr> {
-        self.conn.begin().await
     }
 
     pub async fn commit(&mut self) -> Result<(), Error> {
