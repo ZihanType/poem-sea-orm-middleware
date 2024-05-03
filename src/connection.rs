@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use sea_orm::{DatabaseConnection, TransactionTrait};
 
-use crate::{error::Error, transaction::Transaction};
+use crate::{Error, Transaction};
 
 #[derive(Debug)]
 pub struct Connection {

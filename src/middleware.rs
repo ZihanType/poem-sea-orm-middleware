@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use poem::{Endpoint, IntoResponse, Middleware, Request, Response, Result};
 
-use crate::{data_sources::DataSources, DATA_SOURCES};
+use crate::{DataSources, DATA_SOURCES};
 
 pub struct SeaOrmMiddleware {
     data_sources: Arc<DataSources>,

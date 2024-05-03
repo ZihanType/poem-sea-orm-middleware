@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.5.1] 2024-05-03
+
+- simplify code.
+
 ## [0.5.0] 2024-05-01
 
 - remove `Connection::unmanaged_txn` method.
