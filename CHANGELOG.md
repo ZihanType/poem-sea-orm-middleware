@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.5.2] 2024-05-22
+
+- fix an issue where all requests shared a single data sources context.
+
 ## [0.5.1] 2024-05-03
 
 - simplify code.

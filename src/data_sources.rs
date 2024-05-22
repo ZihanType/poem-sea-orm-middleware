@@ -5,7 +5,7 @@ use sea_orm::DatabaseConnection;
 
 use crate::{Connection, Error, Transaction, DEFAULT_DATA_SOURCE_NAME};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct DataSources(HashMap<Arc<str>, Connection>);
 
 impl DataSources {
@@ -44,7 +44,7 @@ macro_rules! single_operation {
     ($ident:ident, $ty:ty) => {
         pub async fn $ident(&self, name: &str) -> Result<$ty, Error> {
             match self.0.get_async(name).await {
-                Some(mut entry) => Ok(entry.get_mut().$ident().await?),
+                Some(mut entry) => entry.get_mut().$ident().await,
                 None => Err(Error::NotFoundDataSourceError { name: name.into() }),
             }
         }

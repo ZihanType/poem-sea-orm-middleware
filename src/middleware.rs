@@ -5,14 +5,12 @@ use poem::{Endpoint, IntoResponse, Middleware, Request, Response, Result};
 use crate::{DataSources, DATA_SOURCES};
 
 pub struct SeaOrmMiddleware {
-    data_sources: Arc<DataSources>,
+    data_sources: DataSources,
 }
 
 impl SeaOrmMiddleware {
     pub fn new(data_sources: DataSources) -> Self {
-        Self {
-            data_sources: Arc::new(data_sources),
-        }
+        Self { data_sources }
     }
 }
 
@@ -28,7 +26,7 @@ impl<E: Endpoint> Middleware<E> for SeaOrmMiddleware {
 }
 
 pub struct SeaOrmEndpoint<E> {
-    data_sources: Arc<DataSources>,
+    data_sources: DataSources,
     inner: E,
 }
 
@@ -36,7 +34,7 @@ impl<E: Endpoint> Endpoint for SeaOrmEndpoint<E> {
     type Output = Response;
 
     async fn call(&self, req: Request) -> Result<Self::Output> {
-        let data_sources = self.data_sources.clone();
+        let data_sources = Arc::new(self.data_sources.clone());
 
         let result = DATA_SOURCES
             .scope(data_sources.clone(), async { self.inner.call(req).await })
