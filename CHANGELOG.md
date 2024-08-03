@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.0] 2024-08-03
+
+- dep: update `sea-orm` 1.
+
 ## [0.5.2] 2024-05-22
 
 - fix an issue where all requests shared a single data sources context.
