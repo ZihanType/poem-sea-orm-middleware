@@ -15,14 +15,14 @@ include = ["src/**/*", "Cargo.toml"]
 [dependencies]
 async-trait = { version = "0.1", default-features = false }
 poem = { version = "3", default-features = false }
-sea-orm = { version = "0.12", default-features = false }
+sea-orm = { version = "1", default-features = false }
 tokio = { version = "1", default-features = false, features = ["rt"] }
 thiserror = { version = "1", default-features = false }
 scc = { version = "2", default-features = false }
 
 [dev-dependencies]
 poem = { version = "3", default-features = false, features = ["server"] }
-sea-orm = { version = "0.12", default-features = false, features = [
+sea-orm = { version = "1", default-features = false, features = [
     "macros",
     "runtime-tokio-rustls",
     "sqlx-mysql",
