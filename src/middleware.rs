@@ -43,7 +43,7 @@ impl<E: Endpoint> Endpoint for SeaOrmEndpoint<E> {
     type Output = Response;
 
     async fn call(&self, req: Request) -> Result<Self::Output> {
-        let data_sources = Arc::new(DataSources::new(&self.data_sources));
+        let data_sources = Arc::new(DataSources::new(self.data_sources.clone()));
 
         let result = DATA_SOURCES
             .scope(data_sources.clone(), async { self.inner.call(req).await })

@@ -2,16 +2,25 @@ use std::{collections::HashMap, sync::Arc};
 
 use sea_orm::DatabaseConnection;
 
-use crate::{DataSource, Error};
+use crate::{DataSource, Error, DEFAULT_DATA_SOURCE};
 
 #[derive(Debug)]
 pub struct DataSources(HashMap<Arc<str>, DataSource>);
 
 impl DataSources {
-    pub fn new(map: &HashMap<Arc<str>, DatabaseConnection>) -> Self {
+    pub fn with_default(conn: DatabaseConnection) -> Self {
+        let name = Arc::<str>::from(DEFAULT_DATA_SOURCE);
+
+        let mut map = HashMap::new();
+        map.insert(name.clone(), DataSource::new(name, conn));
+
+        Self(map)
+    }
+
+    pub fn new(map: HashMap<Arc<str>, DatabaseConnection>) -> Self {
         let map = map
-            .iter()
-            .map(|(name, conn)| (name.clone(), DataSource::new(name.clone(), conn.clone())))
+            .into_iter()
+            .map(|(name, conn)| (name.clone(), DataSource::new(name, conn)))
             .collect();
 
         Self(map)

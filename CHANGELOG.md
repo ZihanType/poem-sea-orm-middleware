@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.1] 2024-09-24
+
+- add `DataSources::with_default` method.
+
 ## [0.7.0] 2024-09-24
 
 All the code has been changed.
