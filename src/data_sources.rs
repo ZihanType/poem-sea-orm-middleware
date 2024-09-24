@@ -1,81 +1,49 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
-use scc::HashMap;
 use sea_orm::DatabaseConnection;
 
-use crate::{Connection, Error, Transaction, DEFAULT_DATA_SOURCE_NAME};
+use crate::{DataSource, Error};
 
-#[derive(Debug, Default, Clone)]
-pub struct DataSources(HashMap<Arc<str>, Connection>);
+#[derive(Debug)]
+pub struct DataSources(HashMap<Arc<str>, DataSource>);
 
 impl DataSources {
-    pub async fn with_default(conn: DatabaseConnection) -> Self {
-        let name = Arc::<str>::from(DEFAULT_DATA_SOURCE_NAME);
-
-        let map = HashMap::new();
-
-        let _ = map
-            .insert_async(name.clone(), Connection::new(name, conn))
-            .await;
+    pub fn new(map: &HashMap<Arc<str>, DatabaseConnection>) -> Self {
+        let map = map
+            .iter()
+            .map(|(name, conn)| (name.clone(), DataSource::new(name.clone(), conn.clone())))
+            .collect();
 
         Self(map)
     }
 
-    pub async fn insert<N: Into<Arc<str>>>(
-        &self,
-        name: N,
-        conn: DatabaseConnection,
-    ) -> Result<(), (Arc<str>, Connection)> {
-        self._insert(name.into(), conn).await
+    pub fn get(&self, name: &str) -> Option<&DataSource> {
+        self.0.get(name)
     }
 
-    async fn _insert(
-        &self,
-        name: Arc<str>,
-        conn: DatabaseConnection,
-    ) -> Result<(), (Arc<str>, Connection)> {
-        self.0
-            .insert_async(name.clone(), Connection::new(name, conn))
-            .await
+    pub fn standalone(&self) -> Self {
+        let map = self
+            .0
+            .iter()
+            .map(|(name, conn)| (name.clone(), conn.standalone()))
+            .collect();
+
+        Self(map)
     }
-}
 
-macro_rules! single_operation {
-    ($ident:ident, $ty:ty) => {
-        pub async fn $ident(&self, name: &str) -> Result<$ty, Error> {
-            match self.0.get_async(name).await {
-                Some(mut entry) => entry.get_mut().$ident().await,
-                None => Err(Error::NotFoundDataSourceError { name: name.into() }),
-            }
+    pub async fn commit_all(&self) -> Result<(), Error> {
+        for source in self.0.values() {
+            source.commit_all().await?;
         }
-    };
-}
 
-macro_rules! multi_operation {
-    ($ident:ident) => {
-        pub async fn $ident(&self) -> Result<(), Error> {
-            let mut option_entry = self.0.first_entry_async().await;
+        Ok(())
+    }
 
-            while let Some(mut entry) = option_entry {
-                entry.get_mut().$ident().await?;
-                option_entry = entry.next_async().await;
-            }
-
-            Ok(())
+    pub async fn rollback_all(&self) -> Result<(), Error> {
+        for source in self.0.values() {
+            source.rollback_all().await?;
         }
-    };
-}
 
-impl DataSources {
-    single_operation!(current_txn, Transaction);
-
-    single_operation!(new_txn, Transaction);
-
-    single_operation!(commit, ());
-
-    single_operation!(rollback, ());
-
-    multi_operation!(commit_all);
-
-    multi_operation!(rollback_all);
+        Ok(())
+    }
 }

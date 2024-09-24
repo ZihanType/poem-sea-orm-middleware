@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.7.0] 2024-09-24
+
+All the code has been changed.
+
+- feat: support nested transaction.
+- feat: expose task-local variable `DATA_SOURCES` for easy customization of transaction management.
+- **breaking**: the way to create middleware is defined by the
+
+     ```rust
+     let data_sources = DataSources::with_default(db).await;
+     let middleware = SeaOrmMiddleware::new(data_sources);
+     ```
+     change to
+     ```rust
+     let middleware = SeaOrmMiddleware::with_default(db);
+     ```
+
+- **breaking**: rename `Connection` struct to `DataSource`.
+- **breaking**: change the definition of the `Error` enum.
+- **breaking**: `commit` and `rollback` methods take parameters of type `Transaction`.
+- **breaking**: rename `new_txn` method to `create_txn`.
+
 ## [0.6.0] 2024-08-03
 
 - dep: update `sea-orm` 1.

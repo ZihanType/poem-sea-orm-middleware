@@ -18,7 +18,6 @@ poem = { version = "3", default-features = false }
 sea-orm = { version = "1", default-features = false }
 tokio = { version = "1", default-features = false, features = ["rt"] }
 thiserror = { version = "1", default-features = false }
-scc = { version = "2", default-features = false }
 
 [dev-dependencies]
 poem = { version = "3", default-features = false, features = ["server"] }

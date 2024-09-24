@@ -1,5 +1,5 @@
 use poem::{get, handler, listener::TcpListener, web::Path, EndpointExt, Route, Server};
-use poem_sea_orm_middleware::{default_txn, DataSources, SeaOrmMiddleware};
+use poem_sea_orm_middleware::{default_txn, SeaOrmMiddleware};
 use sea_orm::{entity::prelude::*, Database};
 
 #[handler]
@@ -28,8 +28,7 @@ async fn main() -> Result<(), std::io::Error> {
         .unwrap();
 
     // create middleware
-    let data_sources = DataSources::with_default(db).await;
-    let middleware = SeaOrmMiddleware::new(data_sources);
+    let middleware = SeaOrmMiddleware::with_default(db);
 
     let app = Route::new()
         .at("/hello/:name", get(hello))
